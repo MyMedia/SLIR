@@ -604,15 +604,54 @@ class SLIRGDImage extends SLIRImage implements SLIRImageLibrary
    */
   private function render($path)
   {
+	$result = false;
+	  
     if ($this->isJPEG()) {
-      return imagejpeg($this->image, $path, $this->getQuality());
+      $result = imagejpeg($this->image, $path, $this->getQuality());
     } else if ($this->isPNG()) {
-      return imagepng($this->image, $path, (integer) round(10 - ($this->getQuality() / 10)));
+      $result = imagepng($this->image, $path, (integer) round(10 - ($this->getQuality() / 10)));
     } else if ($this->isGIF()) {
-      return imagegif($this->image, $path);
-    } else {
-      return false;
+      $result = imagegif($this->image, $path);
     }
+    
+    // tinypng optimize
+    if($result && $path && SLIRConfig::$enableTinyPng) {
+	    $request = curl_init();
+		curl_setopt_array($request, array(
+			CURLOPT_URL => "https://api.tinypng.com/shrink",
+			CURLOPT_USERPWD => "api:" . SLIRConfig::$tinyPngApiKey,
+			CURLOPT_POSTFIELDS => file_get_contents($path),
+			CURLOPT_BINARYTRANSFER => true,
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_HEADER => true,
+			/* Uncomment below if you have trouble validating our SSL certificate.
+			Download cacert.pem from: http://curl.haxx.se/ca/cacert.pem */
+			// CURLOPT_CAINFO => __DIR__ . "/cacert.pem",
+			CURLOPT_SSL_VERIFYPEER => true
+		));
+
+		$response = curl_exec($request);
+
+		if (curl_getinfo($request, CURLINFO_HTTP_CODE) === 201) {
+		  /* Compression was successful, retrieve output from Location header. */
+		  $headers = substr($response, 0, curl_getinfo($request, CURLINFO_HEADER_SIZE));
+		  foreach (explode("\r\n", $headers) as $header) {
+		    if (substr($header, 0, 10) === "Location: ") {
+		      $request = curl_init();
+		      curl_setopt_array($request, array(
+		        CURLOPT_URL => substr($header, 10),
+		        CURLOPT_RETURNTRANSFER => true,
+		        /* Uncomment below if you have trouble validating our SSL certificate. */
+		        // CURLOPT_CAINFO => __DIR__ . "/cacert.pem",
+		        CURLOPT_SSL_VERIFYPEER => true
+		      ));
+		      file_put_contents($path, curl_exec($request));
+		    }
+		  }
+		}
+    }
+    
+    return $result;
   }
 
   /**

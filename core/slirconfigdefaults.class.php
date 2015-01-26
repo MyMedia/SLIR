@@ -88,6 +88,22 @@ class SLIRConfigDefaults
    * @var boolean
    */
   public static $enableRealPathCache = false;
+  
+  /**
+   * If true, enables the tinypng optimize api
+   *
+   * @since 2.0
+   * @var boolean
+   */
+  public static $enableTinyPng = false;
+  
+  /**
+   * TinyPng API key
+   *
+   * @since 2.0
+   * @var boolean
+   */
+  public static $tinyPngApiKey = '';
 
   /**
    * How much memory (in megabytes) SLIR is allowed to allocate for memory-intensive processes such as rendering and cropping.
