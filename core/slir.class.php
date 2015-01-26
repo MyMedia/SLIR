@@ -1048,6 +1048,17 @@ class SLIR
 	
 	return '/' . $this->getRendered()->getHash();
   }
+  
+  /**
+   * @since 2.0
+   * @return string
+   */
+  private function renderedCacheFileUri()
+  {
+  	$path = $this->renderedCacheFilePath();
+
+  	return str_replace(SLIRConfig::$documentRoot, '', $path);
+  }
 
   /**
    * @since 2.0
@@ -1466,7 +1477,9 @@ class SLIR
   private function serveRenderedImage()
   {
     // Cache the image
-    if ($this->shouldUseRealPathCache() === true && $this->getRequest()->isUsingDefaultImagePath() === false || $this->shouldUseRealPathCache() === false) {
+    if ($this->shouldUseRealPathCache() === true && $this->getRequest()->isUsingDefaultImagePath() === false) {
+	    $this->getRendered()->setPath($this->renderedCacheFileUri())->save();
+    } else {
 	    $this->cache();
     }
 
