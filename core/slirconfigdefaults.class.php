@@ -63,6 +63,14 @@ class SLIRConfigDefaults
   public static $defaultProgressiveJPEG = true;
 
   /**
+   * Default setting for whether sharpening apply or nor.
+   *
+   * @since 2.0
+   * @var boolean
+   */
+  public static $defaultSharpening = true;
+
+  /**
    * How long (in seconds) the web browser should use its cached copy of the image
    * before checking with the server for a new version
    *

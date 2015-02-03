@@ -329,7 +329,7 @@ abstract class SLIRImage
    */
   final protected function isSharpeningDesired()
   {
-    if ($this->isJPEG()) {
+    if (SLIRConfig::$defaultSharpening === true && $this->isJPEG()) {
       return true;
     } else {
       return false;
