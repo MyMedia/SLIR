@@ -604,7 +604,7 @@ class SLIRGDImage extends SLIRImage implements SLIRImageLibrary
    */
   private function render($path)
   {
-	$result = false;
+    $result = false;
 	  
     if ($this->isJPEG()) {
       $result = imagejpeg($this->image, $path, $this->getQuality());
@@ -615,42 +615,54 @@ class SLIRGDImage extends SLIRImage implements SLIRImageLibrary
     }
     
     // tinypng optimize
-    if($result && $path && SLIRConfig::$enableTinyPng) {
+    if($result && $path && SLIRConfig::$enableTinyPng) 
+    {
 	    $request = curl_init();
-		curl_setopt_array($request, array(
-			CURLOPT_URL => "https://api.tinypng.com/shrink",
-			CURLOPT_USERPWD => "api:" . SLIRConfig::$tinyPngApiKey,
-			CURLOPT_POSTFIELDS => file_get_contents($path),
-			CURLOPT_BINARYTRANSFER => true,
-			CURLOPT_RETURNTRANSFER => true,
-			CURLOPT_HEADER => true,
-			/* Uncomment below if you have trouble validating our SSL certificate.
-			Download cacert.pem from: http://curl.haxx.se/ca/cacert.pem */
-			// CURLOPT_CAINFO => __DIR__ . "/cacert.pem",
-			CURLOPT_SSL_VERIFYPEER => true
-		));
+  		curl_setopt_array($request, array(
+  			CURLOPT_URL => "https://api.tinypng.com/shrink",
+  			CURLOPT_USERPWD => "api:" . SLIRConfig::$tinyPngApiKey,
+  			CURLOPT_POSTFIELDS => file_get_contents($path),
+  			CURLOPT_BINARYTRANSFER => true,
+  			CURLOPT_RETURNTRANSFER => true,
+  			CURLOPT_HEADER => true,
+  			/* Uncomment below if you have trouble validating our SSL certificate.
+  			Download cacert.pem from: http://curl.haxx.se/ca/cacert.pem */
+  			// CURLOPT_CAINFO => __DIR__ . "/cacert.pem",
+  			CURLOPT_SSL_VERIFYPEER => true
+  		));
 
-		$response = curl_exec($request);
+  		$response = curl_exec($request);
 
-		if (curl_getinfo($request, CURLINFO_HTTP_CODE) === 201) {
-		  /* Compression was successful, retrieve output from Location header. */
-		  $headers = substr($response, 0, curl_getinfo($request, CURLINFO_HEADER_SIZE));
-		  foreach (explode("\r\n", $headers) as $header) {
-		    if (substr($header, 0, 10) === "Location: ") {
-		      $request = curl_init();
-		      curl_setopt_array($request, array(
-		        CURLOPT_URL => substr($header, 10),
-		        CURLOPT_RETURNTRANSFER => true,
-		        /* Uncomment below if you have trouble validating our SSL certificate. */
-		        // CURLOPT_CAINFO => __DIR__ . "/cacert.pem",
-		        CURLOPT_SSL_VERIFYPEER => true
-		      ));
-		      file_put_contents($path, curl_exec($request));
-		    }
-		  }
-		}
+  		if (curl_getinfo($request, CURLINFO_HTTP_CODE) === 201) {
+  		  /* Compression was successful, retrieve output from Location header. */
+  		  $headers = substr($response, 0, curl_getinfo($request, CURLINFO_HEADER_SIZE));
+  		  foreach (explode("\r\n", $headers) as $header) {
+  		    if (substr($header, 0, 10) === "Location: ") {
+  		      $request = curl_init();
+  		      curl_setopt_array($request, array(
+  		        CURLOPT_URL => substr($header, 10),
+  		        CURLOPT_RETURNTRANSFER => true,
+  		        /* Uncomment below if you have trouble validating our SSL certificate. */
+  		        // CURLOPT_CAINFO => __DIR__ . "/cacert.pem",
+  		        CURLOPT_SSL_VERIFYPEER => true
+  		      ));
+  		      file_put_contents($path, curl_exec($request));
+  		    }
+  		  }
+  		}
     }
-    
+
+    //Optimalize via pngquant
+    if (SLIRConfig::$pngquant_path and $this->isPNG())
+    {
+      $compressed_png_content = shell_exec(SLIRConfig::$pngquant_path . " - < " . escapeshellarg($path) . " 2>&1");
+
+      if (strlen($compressed_png_content)> 0 and !(strpos($compressed_png_content, "No such file or directory") > 0))
+      {
+        file_put_contents($path, $compressed_png_content);
+      }
+    }
+
     return $result;
   }
 
