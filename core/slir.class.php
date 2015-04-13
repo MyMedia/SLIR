@@ -1123,7 +1123,10 @@ class SLIR
    */
   private function cache()
   {
-    $this->cacheRendered();
+    if ($this->getRequest()->isUsingDefaultImagePath() === false)
+    {
+      $this->cacheRendered();
+    }
 
     if ($this->shouldUseRequestCache()) {
       return $this->cacheRequest($this->getRendered()->getData(), true);
