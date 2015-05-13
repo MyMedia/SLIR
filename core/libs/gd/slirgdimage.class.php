@@ -652,15 +652,47 @@ class SLIRGDImage extends SLIRImage implements SLIRImageLibrary
   		}
     }
 
-    //Optimalize via pngquant
-    if (SLIRConfig::$pngquant_path and $this->isPNG())
+    //Optimize with pngquant
+    if ($result && $path && SLIRConfig::$pngquant and $this->isPNG())
     {
-      $compressed_png_content = shell_exec(SLIRConfig::$pngquant_path . " - < " . escapeshellarg($path) . " 2>&1");
+	  	$descriptorspec = array(
+			0 => array('pipe', 'r'),
+			1 => array('pipe', 'w'),
+			2 => array('pipe', 'w'),
+		);
 
-      if (strlen($compressed_png_content)> 0 and !(strpos($compressed_png_content, "No such file or directory") > 0))
-      {
-        file_put_contents($path, $compressed_png_content);
-      }
+		$process = proc_open(SLIRConfig::$pngquant . " - < " . escapeshellarg($path), $descriptorspec, $pipes);
+
+		if( ! is_resource($process))
+		{
+			error_log("\Pngquant: Can't open process", 3, SLIRConfig::$pathToErrorLog);
+			
+			return $result;
+		}
+		
+		// close stdin
+		fclose($pipes[0]);
+		
+		if($err = stream_get_contents($pipes[2]))
+		{
+			fclose($pipes[1]);
+			fclose($pipes[2]);
+			proc_close($process);
+			
+			error_log("\Pngquant: ".$err, 3, SLIRConfig::$pathToErrorLog);
+			
+			return $result;
+		}
+		
+		// read stdout
+		$out = stream_get_contents($pipes[1]);
+		
+		fclose($pipes[1]);
+		fclose($pipes[2]);
+		proc_close($process);
+		
+		// save optimized file
+		file_put_contents($path, $out);
     }
 
     return $result;
