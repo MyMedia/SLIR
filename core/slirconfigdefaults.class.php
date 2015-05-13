@@ -230,13 +230,18 @@ class SLIRConfigDefaults
   public static $copyEXIF = false;
 
   /**
-    * If its false, optimalization PNG files via pngquant will not run.
-    *
-    * It can be shell path to pngquant aplication or short path.
+    * Path to pngquant binnary, false for disabled
     *
     * @var string or boolean
     */
-  public static $pngquant_path = false;
+  public static $pngquant = false;
+  
+  /**
+    * Pngquant image quality
+    *
+    * @var string
+    */
+  public static $pngquantQuality = '20-50';
 
   /**
    * Initialize variables that require some dynamic processing.
