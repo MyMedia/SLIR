@@ -774,7 +774,7 @@ class SLIR
    */
   private function isQualityOn()
   {
-    if ($this->getQuality() < 100) {
+    if ($this->getQuality() < 100 && ! $this->getSource()->isPNG()) {
       return true;
     } else {
       return false;
