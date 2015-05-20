@@ -676,7 +676,8 @@ class SLIRGDImage extends SLIRImage implements SLIRImageLibrary
 		// pass file to stdin
 		stream_copy_to_stream($file, $pipes[0]);
 		
-		// close stdin
+		// close file and stdin
+		fclose($file);
 		fclose($pipes[0]);
 		
 		if($err = stream_get_contents($pipes[2]))
