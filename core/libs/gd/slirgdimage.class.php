@@ -661,7 +661,7 @@ class SLIRGDImage extends SLIRImage implements SLIRImageLibrary
 			2 => array('pipe', 'w'),
 		);
 
-		$process = proc_open(SLIRConfig::$pngquant.' --quality='.SLIRConfig::$pngquantQuality.' - < '.escapeshellarg($path), $descriptorspec, $pipes);
+		$process = proc_open(SLIRConfig::$pngquant.' --quality='.SLIRConfig::$pngquantQuality.' -', $descriptorspec, $pipes);
 
 		if( ! is_resource($process))
 		{
@@ -669,6 +669,12 @@ class SLIRGDImage extends SLIRImage implements SLIRImageLibrary
 			
 			return $result;
 		}
+		
+		// open file
+		$file = fopen($path, 'r');
+		
+		// pass file to stdin
+		stream_copy_to_stream($file, $pipes[0]);
 		
 		// close stdin
 		fclose($pipes[0]);
