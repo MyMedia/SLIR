@@ -1398,8 +1398,25 @@ class SLIR
    */
   private function serveSourceImage()
   {
+	$read_path = $this->getSource()->getFullPath();
+	  
+	// optimize by pngquant if is it png image
+	if(SLIRConfig::$pngquant and $this->getSource()->isPNG())
+	{
+		$save_path = $this->renderedCacheFilePath();
+
+		try
+		{
+			SLIRGDImage::pngquant($read_path, $save_path);
+		}
+		catch(\Exception $e)
+		{
+			error_log("\n".$e->getMessage(), 3, SLIRConfig::$pathToErrorLog);
+		}
+	}
+	  
     return $this->serveFile(
-        $this->getSource()->getFullPath(),
+        $read_path,
         null,
         null,
         null,
