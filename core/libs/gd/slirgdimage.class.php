@@ -655,6 +655,27 @@ class SLIRGDImage extends SLIRImage implements SLIRImageLibrary
     //Optimize with pngquant
     if ($result && $path && SLIRConfig::$pngquant and $this->isPNG())
     {
+	  	try
+	  	{
+		  	static::pngquant($path);
+	  	}
+	  	catch(\Exception $e)
+	  	{
+		  	error_log("\n".$e->getMessage(), 3, SLIRConfig::$pathToErrorLog);
+		  	return $result;
+	  	}
+    }
+
+    return $result;
+  }
+
+  /**
+   * Pngquant optimize
+   * @param string $read_path path to source file
+   * @param string $save_path path to save optimized file, if null then read_path is used, default: null
+   */
+  public static function pngquant($read_path, $save_path = null)
+  {
 	  	$descriptorspec = array(
 			0 => array('pipe', 'r'),
 			1 => array('pipe', 'w'),
@@ -665,13 +686,11 @@ class SLIRGDImage extends SLIRImage implements SLIRImageLibrary
 
 		if( ! is_resource($process))
 		{
-			error_log("\Pngquant: Can't open process", 3, SLIRConfig::$pathToErrorLog);
-			
-			return $result;
+			throw new \Exception('Pngquant: Can\'t open process');
 		}
 		
 		// open file
-		$file = fopen($path, 'r');
+		$file = fopen($read_path, 'r');
 		
 		// pass file to stdin
 		stream_copy_to_stream($file, $pipes[0]);
@@ -686,9 +705,7 @@ class SLIRGDImage extends SLIRImage implements SLIRImageLibrary
 			fclose($pipes[2]);
 			proc_close($process);
 			
-			error_log("\Pngquant: ".$err, 3, SLIRConfig::$pathToErrorLog);
-			
-			return $result;
+			throw new \Exception('Pngquant: '.$err);
 		}
 		
 		// read stdout
@@ -698,11 +715,11 @@ class SLIRGDImage extends SLIRImage implements SLIRImageLibrary
 		fclose($pipes[2]);
 		proc_close($process);
 		
+		// save path
+		$save_path === null and $save_path = $read_path;
+		
 		// save optimized file
-		file_put_contents($path, $out);
-    }
-
-    return $result;
+		file_put_contents($save_path, $out);
   }
 
   /**
