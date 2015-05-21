@@ -95,7 +95,7 @@ class SLIRConfigDefaults
    * @since 2.0
    * @var boolean
    */
-  public static $enableRealPathCache = false;
+  public static $enableRealPathCache = true;
   
   /**
    * If true, enables the tinypng optimize api
@@ -231,6 +231,7 @@ class SLIRConfigDefaults
 
   /**
     * Path to pngquant binnary, false for disabled
+    * https://pngquant.org/
     *
     * @var string or boolean
     */

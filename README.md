@@ -1,8 +1,15 @@
-# SLIR (Smart Lencioni Image Resizer)
+# SLIR (Smart Lencioni Image Resizer) forked version with some new usefull features
 
 SLIR (Smart Lencioni Image Resizer) resizes images, intelligently sharpens, crops based on width:height ratios, color fills transparent GIFs and PNGs, and caches variations for optimal performance.
 
 For questions or support, please [visit the SLIR Google Group](https://groups.google.com/forum/?fromgroups#!forum/smart-lencioni-image-resizer). If you have found a bug, please [use the issue tracker](https://github.com/lencioni/SLIR/issues).
+
+## New features
+
+* Real path cache, resized images are saving  to /slir/w*-h*-c*/path/to/file.ext, so web server can serve it directly
+* [Pngquant](https://pngquant.org/) integration for PNG images - huge optimization
+* [Tinypng](https://tinypng.com/) service integration
+* Downloading and resizing remote images
 
 ## Requirements
 
