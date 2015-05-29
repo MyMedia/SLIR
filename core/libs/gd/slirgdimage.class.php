@@ -217,6 +217,11 @@ class SLIRGDImage extends SLIRImage implements SLIRImageLibrary
    */
   public function resample(SLIRImageLibrary $destination)
   {
+	if($this->isAbleToHaveTransparency())
+	{
+		$this->enableTransparency($destination);
+	}
+	
     imagecopyresampled(
         $destination->getImage(),
         $this->getImage(),
@@ -241,6 +246,11 @@ class SLIRGDImage extends SLIRImage implements SLIRImageLibrary
    */
   public function copy(SLIRImageLibrary $destination)
   {
+	if($this->isAbleToHaveTransparency())
+	{
+		$this->enableTransparency($destination);
+	}
+	  
     imagecopy(
         $destination->getImage(),
         $this->getImage(),
@@ -319,10 +329,18 @@ class SLIRGDImage extends SLIRImage implements SLIRImageLibrary
    * @return SLIRImageLibrary
    * @since 2.0
    */
-  public function enableTransparency()
+  public function enableTransparency(SLIRImageLibrary $destination = null)
   {
-    imagealphablending($this->getImage(), false);
-    imagesavealpha($this->getImage(), true);
+	if($destination)
+	{
+	    imagealphablending($destination->getImage(), false);
+	    imagesavealpha($destination->getImage(), true);
+	    
+	    return;
+	}
+	
+	imagealphablending($this->getImage(), true);
+	
     return $this;
   }
 
@@ -413,6 +431,11 @@ class SLIRGDImage extends SLIRImage implements SLIRImageLibrary
     $cropped->setWidth($this->getCropWidth())
       ->setHeight($this->getCropHeight())
       ->setBackground($this->getBackground());
+
+	if($this->isAbleToHaveTransparency())
+	{
+		$this->enableTransparency($cropped);
+	}
 
     // Copy rendered image to cropped image
     imagecopy(
