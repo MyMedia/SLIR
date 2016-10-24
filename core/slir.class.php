@@ -259,7 +259,7 @@ class SLIR
     }
 
     // See if there is anything we actually need to do
-    if ($this->isSourceImageDesired()) {
+    if ($this->shouldUseRealPathCache() === false && $this->isSourceImageDesired()) {
       return $this->serveSourceImage();
     }
 
