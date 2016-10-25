@@ -609,7 +609,7 @@ class SLIR
     $this->getRendered()->background();
 
     // Resample the original image into the resized canvas we set up earlier
-    if ($this->getSource()->getWidth() !== $this->getRendered()->getWidth() || $this->getSource()->getHeight() != $this->getRendered()->getHeight()) {
+    if (SLIRConfig::$pngquant and $this->getSource()->isPNG() || $this->getSource()->getWidth() !== $this->getRendered()->getWidth() || $this->getSource()->getHeight() != $this->getRendered()->getHeight()) {
       $this->getSource()->resample($this->getRendered());
     } else {
       // No resizing is needed, so make a clean copy
