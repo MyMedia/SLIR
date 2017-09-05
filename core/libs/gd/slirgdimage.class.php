@@ -695,7 +695,7 @@ class SLIRGDImage extends SLIRImage implements SLIRImageLibrary
   /**
    * Pngquant optimize
    * @param string $read_path path to source file
-   * @param string $save_path path to save optimized file, if null then read_path is used, default: null
+   * @param string $ext file extension including dot, default: .png
    */
   public static function pngquant($read_path, $ext = '.png')
   {	
@@ -705,7 +705,7 @@ class SLIRGDImage extends SLIRImage implements SLIRImageLibrary
 			2 => array('pipe', 'w'),
 		);
 
-		$process = proc_open(SLIRConfig::$pngquant.' --quality='.SLIRConfig::$pngquantQuality.' --ext="'.$ext.'" --force -- '.$read_path, $descriptorspec, $pipes);
+		$process = proc_open(SLIRConfig::$pngquant.' --quality='.SLIRConfig::$pngquantQuality.' --ext="'.$ext.'" --force -- '.escapeshellarg($read_path), $descriptorspec, $pipes);
 
 		if( ! is_resource($process))
 		{
