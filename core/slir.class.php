@@ -1579,6 +1579,13 @@ class SLIR
     $this->header("Content-Type: $mimeType");
     $this->header("Content-Length: $fileSize");
 
+    // image not found, served default one, so we don't want cache
+    if($this->getRequest()->isUsingDefaultImagePath() === true) {
+        $this->header('Cache-Control: max-age=0, no-cache');
+
+        return $this->doConditionalGet($lastModified);
+    }
+
     // Lets us easily know whether the image was rendered from scratch,
     // from the cache, or served directly from the source image
     $this->header("X-Content-SLIR: $slirHeader");
